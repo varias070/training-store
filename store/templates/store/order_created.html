@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  {% block content %}
+    <h1>Thank you</h1>
+    <p>Your order has been successfully completed. Your order number is
+        <strong>{{ order.id }}</strong>.</p>
+{% endblock %}
+</body>
+</html>

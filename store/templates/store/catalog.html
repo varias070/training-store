@@ -1,5 +1,5 @@
+<!DOCTYPE html>
 {%load static %}
-<DOCTYPE html!>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,11 +17,11 @@
             </a>
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><a href="#" class="nav-link px-2 link-secondary">Магазин</a></li>
-          <li><a href="{% url 'services' %}" class="nav-link px-2 link-dark">Услуги</a></li>
+          <li><a href="{% url 'store:services' %}" class="nav-link px-2 link-dark">Услуги</a></li>
           <li><a href="#" class="nav-link px-2 link-dark">Информация</a></li>
         </ul>
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="{% url 'search' %}">
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="{% url 'store:search' %}">
           <input type="search" class="form-control" placeholder="Search..." aria-label="Search" name="search">
         </form>
 
@@ -42,7 +42,7 @@
   </header>
   <aside>
       <ul>
-          <form action="{% url 'catalog' %}">
+          <form action="{% url 'store:catalog' %}">
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="phone" name="type" id="flexCheck1">
                 <label class="form-check-label" for="flexCheck1">
@@ -86,13 +86,19 @@
   <main class="page container" id="page">
     <ul>
         {% for product in page_obj %}
-        <li><a href="{% url 'product' pk=product.pk %}">{{product}}</a></li>
+        <li><a href="{% url 'store:product' pk=product.pk %}">{{product}}</a></li>
         {% endfor %}
     </ul>
       <nav>
-          {% for a in page_obj.paginator.page_range %}
+          {% for page in page_obj.paginator.page_range %}
           <li>
-              <a href="?page={{ a }}">{{a}}</a>
+              <a href="?page={{ page }}" onclick="dynamic_change_url('/?page={{ page }}&type={{type}}&manufacturer={{manufacturer}}');return false;">{{ page }}</a>
+              <script>
+                 function dynamic_change_url(link){
+                    window.history.pushState("", "", link);
+                    window.history.replaceState("", "", link);
+                    }
+              </script>
           </li>
           {% endfor %}
       </nav>
