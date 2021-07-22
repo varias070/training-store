@@ -1,48 +1,74 @@
+from django.contrib.auth import logout, login
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponseNotFound
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from .models import Product
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from .cart import Cart
-from .forms import CartAddProductForm
+from .forms import CartAddProductForm, RegisterUserForm, LoginUserForm
 from .forms import OrderCreateForm
 from .models import OrderItem
-from django.contrib.admin.views.decorators import staff_member_required
-from .models import Order
 
 
-def catalog(request):
-    products = Product.objects.all()
+class Catalog(ListView):
+    paginate_by = 2
+    model = Product
+    context_object_name = 'page_obj'
+    template_name = 'store/catalog.html'
 
-    # filter
-    if "type" in request.GET:
-        products = products.filter(type__in=request.GET.getlist("type"))
-    if "manufacturer" in request.GET:
-        products = products.filter(manufacturer__title__in=request.GET.getlist("manufacturer"))
-
-    # Paginate
-
-    paginator = Paginator(products, 3)
-    # if "type" in response:
-    #     page_number = request.GET.get('page', 'type')
-    # if "manufacturer" in response:
-    #     page_number = request.GET.get('page', 'manufacturer')
-    # else:
-    page_number = request.GET.get('page',)
-    page_obj = paginator.get_page(page_number)
-    type = Product.type
-    manufacturer = Product.manufacturer
-    return render(request, 'store/catalog.html', {'page_obj': page_obj, 'type': type, 'manufacturer': manufacturer})
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        if self.request.GET.get('type'):
+            queryset = queryset.filter(type=self.request.GET.get('type'))
+        if self.request.GET.get('manufacturer'):
+            queryset = queryset.filter(manufacturer=self.request.GET.get('manufacturer'))
+        return queryset
 
 
-def services(request):
-    return render(request, 'store/services.html')
 
+# def catalog(request):
+#     products = Product.objects.all()
+#
+#     # filter
+#     if "type" in request.GET:
+#         products = products.filter(type__in=request.GET.getlist("type"))
+#     if "manufacturer" in request.GET:
+#         products = products.filter(manufacturer__title__in=request.GET.getlist("manufacturer"))
+#
+#     # Paginate
+#
+#     paginator = Paginator(products, 3)
+#     # if "type" in response:
+#     #     page_number = request.GET.get('page', 'type')
+#     # if "manufacturer" in response:
+#     #     page_number = request.GET.get('page', 'manufacturer')
+#     # else:
+#     page_number = request.GET.get('page',)
+#     page_obj = paginator.get_page(page_number)
+#     return render(request, 'store/catalog.html', {'page_obj': page_obj, 'type': type, 'manufacturer': manufacturer})
 
-def search(request):
-    search_params = request.GET['search']
-    query = Product.objects.filter(title__icontains=search_params)
-    return render(request, 'store/catalog.html', {'query': query})
+class Searcher(ListView):
+    model = Product
+    context_object_name = 'page_obj'
+    template_name = 'store/catalog.html'
 
+    def get_queryset(self):
+        search_params = self.request.GET['search']
+        queryset = Product.objects.filter(title__icontains=search_params)
+        return queryset
+
+# def search(request):
+#     search_params = request.GET['search']
+#     query = Product.objects.filter(title__icontains=search_params)
+#     return render(request, 'store/base.html', {'query': query})
+
+# class ShowProduct(DetailView):
+#     model = Product
+#     template_name = 'store/product.html'
 
 def product(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -87,3 +113,34 @@ def order_create(request):
     else:
         form = OrderCreateForm
     return render(request, 'store/order_create.html', {'cart': cart, 'form': form})
+
+
+class RegisterUser(CreateView):
+    form_class = RegisterUserForm
+    template_name = 'store/register.html'
+    success_url = reverse_lazy('store:login')
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('store:catalog')
+
+class LoginUser(LoginView):
+    form_class = LoginUserForm
+    template_name = 'store/login.html'
+
+    def get_success_url(self):
+        return reverse_lazy('store:catalog')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('store:catalog')
+
+def page_not_found(request, exception):
+    return HttpResponseNotFound('<h1>Page not Found</h1>')
+
+
+class ShowPersonalCabinet(DetailView):
+    model = User
+    template_name = 'store/personal_cabinet.html'

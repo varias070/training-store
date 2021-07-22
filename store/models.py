@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Product(models.Model):
@@ -30,6 +31,7 @@ class Manufacturer(models.Model):
 
 
 class Order(models.Model):
+    сustomer = models.ForeignKey(User, null=True, on_delete=models.CASCADE,)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField()

@@ -1,0 +1,8 @@
+{% extends 'store/base.html' %}
+{% block content%}
+    <ul>
+        <li>Имя {{ user.first_name }}</li>
+        <li>Фамилия {{ user.last_name }}</li>
+        <li>Почта {{ user.email }}</li>
+    </ul>
+{% endblock %}

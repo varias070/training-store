@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header class="p-3 mb-3 border-bottom">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
+            </a>
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href="{% url 'store:catalog' %}" class="nav-link px-2 link-secondary">Магазин</a></li>
+          <li><a href="" class="nav-link px-2 link-dark">Доставка</a></li>
+          <li><a href="#" class="nav-link px-2 link-dark">Информация</a></li>
+
+            {% if request.user.is_authenticated %}
+            <li class=""> {{user.username}} | <a href="{% url 'store:logout' %}">Выйти</a></li>
+            <li><a href="{% url 'store:personal_cabinet' pk=user.pk  %}" class="nav-link px-2 link-dark">Личный кабинет</a></li>
+            {% else %}
+            <li><a href="{% url 'store:register' %}" class="nav-link px-2 link-dark">Регистрация</a></li>
+            <li><a href="{% url 'store:login' %}" class="nav-link px-2 link-dark">Войти</a></li>
+        </ul>
+            {% endif %}
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="{% url 'store:search' %}">
+          <input type="search" class="form-control" placeholder="Search..." aria-label="Search" name="search">
+        </form>
+        </div>
+        </div>
+  </header>
+    {% block content %}
+    {% endblock %}
+
+    <nav>
+        {% for p in paginator.page_range %}
+        <li class="page-num">
+	        <a href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </nav>
+</body>
+</html>
