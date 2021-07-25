@@ -15,7 +15,7 @@ from .models import OrderItem
 
 
 class Catalog(ListView):
-    paginate_by = 2
+    paginate_by = 6
     model = Product
     context_object_name = 'page_obj'
     template_name = 'store/catalog.html'
@@ -42,14 +42,15 @@ class Catalog(ListView):
 #     # Paginate
 #
 #     paginator = Paginator(products, 3)
-#     # if "type" in response:
+#     # if "type" in request.GET:
 #     #     page_number = request.GET.get('page', 'type')
-#     # if "manufacturer" in response:
+#     # if "manufacturer" in request.GET:
 #     #     page_number = request.GET.get('page', 'manufacturer')
 #     # else:
 #     page_number = request.GET.get('page',)
 #     page_obj = paginator.get_page(page_number)
 #     return render(request, 'store/catalog.html', {'page_obj': page_obj, 'type': type, 'manufacturer': manufacturer})
+
 
 class Searcher(ListView):
     model = Product
@@ -69,6 +70,7 @@ class Searcher(ListView):
 # class ShowProduct(DetailView):
 #     model = Product
 #     template_name = 'store/product.html'
+
 
 def product(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -125,6 +127,7 @@ class RegisterUser(CreateView):
         login(self.request, user)
         return redirect('store:catalog')
 
+
 class LoginUser(LoginView):
     form_class = LoginUserForm
     template_name = 'store/login.html'
@@ -136,6 +139,7 @@ class LoginUser(LoginView):
 def logout_user(request):
     logout(request)
     return redirect('store:catalog')
+
 
 def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Page not Found</h1>')

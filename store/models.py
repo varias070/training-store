@@ -20,7 +20,6 @@ class Product(models.Model):
 
     class Meta:
         ordering = ('title',)
-        index_together = (('id'),)
 
 
 class Manufacturer(models.Model):
