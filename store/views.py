@@ -1,17 +1,19 @@
+from pyexpat.errors import messages
 from django.contrib.auth import logout, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
-from .models import Product
+from django.views import View
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, TemplateView
+from .models import Product, Order, OrderItem
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from .cart import Cart
-from .forms import CartAddProductForm, RegisterUserForm, LoginUserForm
+from .forms import CartAddProductForm, RegisterUserForm, LoginUserForm, ChangePersonalInformationForm
 from .forms import OrderCreateForm
-from .models import OrderItem
 
 
 class Catalog(ListView):
@@ -27,7 +29,6 @@ class Catalog(ListView):
         if self.request.GET.get('manufacturer'):
             queryset = queryset.filter(manufacturer=self.request.GET.get('manufacturer'))
         return queryset
-
 
 
 # def catalog(request):
@@ -53,14 +54,14 @@ class Catalog(ListView):
 
 
 class Searcher(ListView):
+    paginate_by = 3
     model = Product
     context_object_name = 'page_obj'
     template_name = 'store/catalog.html'
 
     def get_queryset(self):
         search_params = self.request.GET['search']
-        queryset = Product.objects.filter(title__icontains=search_params)
-        return queryset
+        return Product.objects.filter(title__icontains=search_params)
 
 # def search(request):
 #     search_params = request.GET['search']
@@ -100,7 +101,7 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart.html', {'cart': cart})
 
-
+# мне нужно перестроить фунуцию таким образом,чтобы request.user присваивался атрибуту custamer модели Order
 def order_create(request):
     cart = Cart(request)
     if request.method == 'POST':
@@ -109,12 +110,37 @@ def order_create(request):
             order = form.save()
             for item in cart:
              OrderItem.objects.create(order=order, product=item['product'], price=item['price'], quantity=item['quantity'])
-            # очистка корзины
             cart.clear()
             return render(request, 'store/order_created.html', {'order': order})
     else:
         form = OrderCreateForm
     return render(request, 'store/order_create.html', {'cart': cart, 'form': form})
+
+
+# class OrderCreate(CreateView):
+#     model = Order
+#     fields = ['first_name', 'last_name', 'email', 'city', 'address']
+#     template_name = 'store/order_create.html'
+#     success_url = reverse_lazy('store:order_created')
+#
+#       def __init__(self):
+#            if request.user.is_authenticated:
+#               return Order.customer=request.user
+#
+#
+#     def __init__(self):
+#         cart = Cart(request)
+#         if request.method == 'POST':
+#             for item in cart:
+#                 OrderItem.objects.create(order=Order, product=item['product'],
+#                                          price=item['price'], quantity=item['quantity'])
+#                 return redirect('store:order_created.html')
+#         else:
+#             pass
+
+
+class OrderCreated(TemplateView):
+    template_name = 'store/order_created.html'
 
 
 class RegisterUser(CreateView):
@@ -136,9 +162,13 @@ class LoginUser(LoginView):
         return reverse_lazy('store:catalog')
 
 
-def logout_user(request):
-    logout(request)
-    return redirect('store:catalog')
+class LogoutUser(LogoutView):
+    next_page = 'store:catalog'
+
+
+# def logout_user(request):
+#     logout(request)
+#     return redirect('store:catalog')
 
 
 def page_not_found(request, exception):
@@ -148,3 +178,27 @@ def page_not_found(request, exception):
 class ShowPersonalCabinet(DetailView):
     model = User
     template_name = 'store/personal_cabinet.html'
+
+
+# def change_personal_information(request, pk):
+#         user = User.objects.get(pk=pk)
+#
+#         if request.method == "POST":
+#             user. first_name = request.POST.get('first_name')
+#             user.last_name = request.POST.get('last_name')
+#             user.email = request.POST.get('email')
+#             user.save()
+#             return redirect('store:personal_cabinet')
+#         else:
+#             return render(request, "change_personal_info.html", {"user": user})
+
+
+class ChangePersonalInformation(UpdateView):
+    model = User
+    fields = ['last_name', 'first_name', 'email']
+    template_name = 'store/change_personal_info.html'
+    success_url = reverse_lazy('store:catalog')
+
+
+class ShowInfo(TemplateView):
+    template_name = 'store/info.html'

@@ -7,4 +7,5 @@ from django.conf import settings
 urlpatterns = [
     path('', include('store.urls')),
     path('admin/', admin.site.urls),
+    path('captcha/', include('captcha.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

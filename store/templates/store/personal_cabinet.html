@@ -1,8 +1,18 @@
 {% extends 'store/base.html' %}
-{% block content%}
-    <ul>
-        <li>Имя {{ user.first_name }}</li>
-        <li>Фамилия {{ user.last_name }}</li>
-        <li>Почта {{ user.email }}</li>
+{% block content %}
+ <div class="container">
+    <div class="row align-items-center">
+<div class="row g-3">
+            <div class="col-sm-6">
+    <ul class="list-group">
+        <li class="list-group-item">Имя {{ user.first_name }}</li>
+        <li class="list-group-item">Фамилия {{ user.last_name }}</li>
+        <li class="list-group-item">Почта {{ user.email }}</li>
     </ul>
+<a href="{% url 'store:change_personal_info' pk=user.pk %}" class="btn btn-sm btn-outline-secondary">Изменить личную информацию</a>
+                <a href="{% url 'store:change_personal_info' pk=user.pk %}" class="btn btn-sm btn-outline-secondary">Изменить пароль</a>
+            </div>
+</div>
+    </div>
+ </div>
 {% endblock %}
