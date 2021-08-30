@@ -1,79 +1,39 @@
-from pyexpat.errors import messages
-from django.contrib.auth import logout, login
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, TemplateView
-from .models import Product, Order, OrderItem
-from django.core.paginator import Paginator
+from .models import Product, OrderItem, Type, Manufacturer
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 from .cart import Cart
-from .forms import CartAddProductForm, RegisterUserForm, LoginUserForm, ChangePersonalInformationForm
-from .forms import OrderCreateForm
+from .forms import *
 
 
 class Catalog(ListView):
-    paginate_by = 6
+    paginate_by = 12
     model = Product
-    context_object_name = 'page_obj'
+    context_object_name = 'products'
     template_name = 'store/catalog.html'
 
     def get_queryset(self):
         queryset = Product.objects.all()
+        if self.request.GET.get('search'):
+            queryset = queryset.filter(title__icontains=self.request.GET.get('search'))
         if self.request.GET.get('type'):
             queryset = queryset.filter(type=self.request.GET.get('type'))
         if self.request.GET.get('manufacturer'):
             queryset = queryset.filter(manufacturer=self.request.GET.get('manufacturer'))
         return queryset
 
-
-# def catalog(request):
-#     products = Product.objects.all()
-#
-#     # filter
-#     if "type" in request.GET:
-#         products = products.filter(type__in=request.GET.getlist("type"))
-#     if "manufacturer" in request.GET:
-#         products = products.filter(manufacturer__title__in=request.GET.getlist("manufacturer"))
-#
-#     # Paginate
-#
-#     paginator = Paginator(products, 3)
-#     # if "type" in request.GET:
-#     #     page_number = request.GET.get('page', 'type')
-#     # if "manufacturer" in request.GET:
-#     #     page_number = request.GET.get('page', 'manufacturer')
-#     # else:
-#     page_number = request.GET.get('page',)
-#     page_obj = paginator.get_page(page_number)
-#     return render(request, 'store/catalog.html', {'page_obj': page_obj, 'type': type, 'manufacturer': manufacturer})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['types'] = Type.objects.all()
+        context['manufacturers'] = Manufacturer.objects.all()
+        return context
 
 
-class Searcher(ListView):
-    paginate_by = 3
-    model = Product
-    context_object_name = 'page_obj'
-    template_name = 'store/catalog.html'
-
-    def get_queryset(self):
-        search_params = self.request.GET['search']
-        return Product.objects.filter(title__icontains=search_params)
-
-# def search(request):
-#     search_params = request.GET['search']
-#     query = Product.objects.filter(title__icontains=search_params)
-#     return render(request, 'store/base.html', {'query': query})
-
-# class ShowProduct(DetailView):
-#     model = Product
-#     template_name = 'store/product.html'
-
-
-def product(request, pk):
+def show_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     cart_product_form = CartAddProductForm()
     return render(request, 'store/product.html', {'product': product, 'cart_product_form': cart_product_form})
@@ -101,46 +61,37 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart.html', {'cart': cart})
 
-# мне нужно перестроить фунуцию таким образом,чтобы request.user присваивался атрибуту custamer модели Order
+
 def order_create(request):
     cart = Cart(request)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            order = form.save()
+            order = form.instance
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                user = User.objects.create_user(
+                    email=form.cleaned_data['email'],
+                    last_name=form.cleaned_data['last_name'],
+                    first_name=form.cleaned_data['first_name'],
+                    username=form.cleaned_data['first_name']+form.cleaned_data['last_name'],
+                    password='123'
+                )
+            order.customer = user
+            order.save()
             for item in cart:
-             OrderItem.objects.create(order=order, product=item['product'], price=item['price'], quantity=item['quantity'])
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    price=item['price'],
+                    quantity=item['quantity'],
+                )
             cart.clear()
             return render(request, 'store/order_created.html', {'order': order})
     else:
         form = OrderCreateForm
     return render(request, 'store/order_create.html', {'cart': cart, 'form': form})
-
-
-# class OrderCreate(CreateView):
-#     model = Order
-#     fields = ['first_name', 'last_name', 'email', 'city', 'address']
-#     template_name = 'store/order_create.html'
-#     success_url = reverse_lazy('store:order_created')
-#
-#       def __init__(self):
-#            if request.user.is_authenticated:
-#               return Order.customer=request.user
-#
-#
-#     def __init__(self):
-#         cart = Cart(request)
-#         if request.method == 'POST':
-#             for item in cart:
-#                 OrderItem.objects.create(order=Order, product=item['product'],
-#                                          price=item['price'], quantity=item['quantity'])
-#                 return redirect('store:order_created.html')
-#         else:
-#             pass
-
-
-class OrderCreated(TemplateView):
-    template_name = 'store/order_created.html'
 
 
 class RegisterUser(CreateView):
@@ -164,11 +115,6 @@ class LoginUser(LoginView):
 
 class LogoutUser(LogoutView):
     next_page = 'store:catalog'
-
-
-# def logout_user(request):
-#     logout(request)
-#     return redirect('store:catalog')
 
 
 def page_not_found(request, exception):
@@ -195,10 +141,21 @@ class ShowPersonalCabinet(DetailView):
 
 class ChangePersonalInformation(UpdateView):
     model = User
-    fields = ['last_name', 'first_name', 'email']
+    form_class = ChangePersonalInformationForm
     template_name = 'store/change_personal_info.html'
     success_url = reverse_lazy('store:catalog')
 
 
 class ShowInfo(TemplateView):
     template_name = 'store/info.html'
+
+
+class ChangePassword(PasswordChangeView):
+    template_name = 'store/change_password.html'  # 'registration/password_change_form.html'
+    form_class = ChangePasswordForm
+
+
+def show_personal_order(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    # order_item = get_object_or_404(OrderItem, pk=pk)
+    return render(request, 'store/personal_order.html', {'order': order})  # 'order_item': order_item})

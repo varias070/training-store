@@ -10,7 +10,7 @@ class Product(models.Model):
     height = models.IntegerField(default=0, verbose_name='Высота')
     width = models.IntegerField(default=0, verbose_name='Ширина')
     mass = models.IntegerField(default=0, verbose_name='Масса')
-    photo = models.ImageField(upload_to='static/img', null=True, verbose_name='Фото')
+    photo = models.ImageField(upload_to='img', verbose_name='Фото')
     type = models.ForeignKey('Type', null=True, on_delete=models.CASCADE, verbose_name='Тип')
     description = models.TextField(null=True, verbose_name='Описание')
 
@@ -24,7 +24,7 @@ class Product(models.Model):
 
 
 class Manufacturer(models.Model):
-    title = models.CharField(max_length=50, null=True)
+    title = models.CharField(max_length=50, null=True, verbose_name='Название')
 
     def __str__(self):
         return self.title
@@ -35,7 +35,7 @@ class Manufacturer(models.Model):
 
 
 class Type(models.Model):
-    title = models.CharField(max_length=50, null=True)
+    title = models.CharField(max_length=50, null=True, verbose_name='Название')
 
     def __str__(self):
         return self.title
@@ -46,15 +46,15 @@ class Type(models.Model):
 
 
 class Order(models.Model):
-    сustomer = models.ForeignKey(User, null=True, on_delete=models.CASCADE,)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField()
-    city = models.CharField(max_length=100)
-    address = models.CharField(max_length=250)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=50, verbose_name='Имя')
+    last_name = models.CharField(max_length=50, verbose_name='Фамилия')
+    email = models.EmailField(verbose_name='Почта')
+    city = models.CharField(max_length=100, verbose_name='Город')
+    address = models.CharField(max_length=250, verbose_name='Адресс')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    paid = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False, verbose_name='Оплата')
 
     class Meta:
         ordering = ('-created',)

@@ -1,3 +1,31 @@
 {% extends 'store/base.html' %}
 {% load static %}
 {% block content %}
+ <div class="container">
+    <div class="row align-items-center">
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-dark">Город {{ order.city }}</li>
+                    <li class="list-group-item ">Адресс {{ order.address}}</li>
+
+                    {% if order.paid %}
+                        <li class="list-group-item list-group-item-dark">Статус оплаты: оплачено</li>
+                    {% else %}
+                          <li class="list-group-item list-group-item-dark">Статус оплаты: не оплачено</li>
+                    {% endif %}
+
+                    <li class="list-group-item">Цена заказа: {{ order.get_total_cost }}</li>
+
+                    {% for item in order.items.all %}
+                        <li class="list-group-item list-group-item-dark">Название товара: {{item.product}}</li>
+                        <li class="list-group-item">Количество: {{item.quantity}}</li>
+                        <li class="list-group-item list-group-item-dark">Цена единицы товара: {{item.price}}</li>
+                        <li class="list-group-item">Цена товара: {{ item.get_cost }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+ </div>
+{% endblock %}

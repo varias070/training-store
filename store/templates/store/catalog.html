@@ -2,71 +2,64 @@
 {% load static %}
 {% block content %}
 <content>
-    <asside>
-        <ul>
-          <form action="{% url 'store:catalog' %}">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="phone" name="type" id="flexCheck1">
-                <label class="form-check-label" for="flexCheck1">
-                    Phone
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="tv" name="type" id="flexCheck2">
-                <label class="form-check-label" for="flexCheck2">
-                    TV
-                </label>
-              </div>
-                 <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="computer" name="type" id="flexCheck3">
-                <label class="form-check-label" for="flexCheck3">
-                    Computer
-                </label>
-              </div>
-               <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="Samsung" name="manufacturer" id="flexCheck4">
-                <label class="form-check-label" for="flexCheck4">
-                    Samsung
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="LG" name="manufacturer" id="flexCheck5">
-                <label class="form-check-label" for="flexCheck5">
-                    LG
-                </label>
-              </div>
-                 <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="Acer" name="manufacturer" id="flexCheck6">
-                <label class="form-check-label" for="flexCheck6">
-                    Acer
-                </label>
-              </div>
-              <input type="submit" value="OK">
-          </form>
-      </ul>
-</asside>
-
+     <div class="d-grid gap-2">
+      <button class="btn btn-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Фильтры
+  </button>
+     </div>
+     <div class="collapse container" id="collapseExample">
+        <asside class="container">
+            <ul>
+              <form action="{% url 'store:catalog' %}">
+                  <div class="row">
+                      <div class="col">
+                          <h5>Тип</h5>
+                          {% for type in types %}
+                          <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ type.id }}" name="type" id="{{ type.id }}">
+                                <label class="form-check-label" for="{{ type.id }}">
+                                    {{ type.title }}
+                                </label>
+                          </div>
+                          {% endfor %}
+                      </div>
+                      <div class="col">
+                          <h5>Производитель</h5>
+                          {% for manufacturer in manufacturers %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ manufacturer.id }}" name="manufacturer" id="{{ manufacturer.id }}">
+                                <label class="form-check-label" for="{{ manufacturer.id }}">
+                                    {{ manufacturer.title }}
+                                </label>
+                            </div>
+                          {% endfor %}
+                      </div>
+                  <input type="submit" value="Применить" class="btn btn-white">
+                  </div>
+              </form>
+          </ul>
+        </asside>
+     </div>
     <main>
-    <div class="album py-5 bg-light">
-    <div class="container">
-      <main class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-           {% for product in page_obj %}
-        <div class="col">
-          <div class="card shadow-sm">
-            <div class="card-body">
-                <img src="{{ product.photo}}">
-              <h4 class="card-text">{{ product.title }}</h4>
-                <p class="card-text">manufacturer {{product.manufacturer}}</p>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group">
-                    <a href="{% url 'store:product' pk=product.pk %}" role="button" class="btn btn-sm btn-outline-secondary">Перейти</a>
-                </div>
-                <small class="text-muted">price {{product.price}}</small>
+        <div class="py-5">
+        <div class="container">
+          <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2">
+               {% for product in products %}
+              <div class="col" onclick="javascript:location.href='{% url 'store:product' pk=product.pk %}';">
+                    <div class="card h-100">
+                        <a href="{% url 'store:product' pk=product.pk %}" >
+                            <img src="{{ product.photo.url}}" class="card-img-top">
+                        </a>
+                     <div class="card-body">
+                         <h6 class="card-text" style="width: 6rem;">{{ product.title }}</h6>
+                         <p class="card-text "><small class="text-muted">{{product.manufacturer}}|{{product.price}} P</small></p>
+                     </div>
+                    </div>
               </div>
-            </div>
+              {% endfor %}
           </div>
         </div>
-          {% endfor %}
-      </main>
+       </div>
+    </main>
 </content>
 {% endblock %}

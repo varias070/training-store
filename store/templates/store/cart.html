@@ -36,11 +36,33 @@
        <a href="{% url 'store:catalog' %}" class="btn btn-sm btn-outline-secondary">Вернуться в магазин</a>
        </div>
        <div class="col">
-         {% if request.user.is_authenticated %}
+
         <a href="{% url 'store:order_create' %}" class="btn btn-sm btn-outline-secondary">Оформить заказ</a>
-        {% else %}
-        <a href="{% url 'store:register'%}"  class="btn btn-sm btn-outline-secondary">Зарегистрироваться</a>
-        {% endif %}
+<!--         {% if request.user.is_authenticated %}-->
+<!--        {% else %}-->
+<!--           <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">-->
+<!--            Оформить заказ-->
+<!--            </button>-->
+
+<!--<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
+<!--  <div class="modal-dialog">-->
+<!--    <div class="modal-content">-->
+<!--      <div class="modal-header">-->
+<!--        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--      </div>-->
+<!--      <div class="modal-body">-->
+<!--          Если вы заригистрированы вам необходимо авторизоваться.-->
+<!--          Если вы НЕ ЗАРЕГИСТРИРОВАНЫ вам необходимо зарегистрироваться.-->
+<!--      </div>-->
+<!--      <div class="modal-footer">-->
+<!--        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>-->
+<!--          <a href="{% url 'store:register'%}"  class="btn btn-sm btn-outline-secondary">Зарегистрироваться</a>-->
+<!--          <a href="{% url 'store:login'%}"  class="btn btn-sm btn-outline-secondary">Авторизироваться</a>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+<!--        {% endif %}-->
        </div>
     </div>
  </div>

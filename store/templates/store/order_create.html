@@ -25,6 +25,7 @@
             <div class="col-sm-6">
     {{ form.as_p }}
     <input type="submit" value="Сохранить" class="btn btn-sm btn-outline-secondary">
+                <a href="{% url 'store:cart_detail'%}" role="button" class="btn btn-sm btn-outline-secondary">Перейти в корзину</a>
             </div>
      </div>
 </form>

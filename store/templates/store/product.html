@@ -1,33 +1,33 @@
 {% extends 'store/base.html' %}
-{%load static %}
+{% load static %}
 {% block content%}
 <div class="container">
-    <div class="row align-items-center">
-         <div class="col">
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">Название {{ product.title }}</li>
-        <li class="list-group-item">Производитель {{product.manufacturer}}</li>
-        <li class="list-group-item">Высота {{product.height}}</li>
-        <li class="list-group-item">Ширина {{product.width}}</li>
-        <li class="list-group-item">Масса {{product.mass}}</li>
-        <li class="list-group-item">Тип {{product.type}}</li>
-        <li class="list-group-item">Цена {{product.price}}</li>
-    </ul>
-         </div>
-    <div class="col-6">
-       <img src="{{ product.photo}}">
+    <div class="row row-cols-1 row-cols-sm-2 align-items-center">
+        <div class="col">
+            <img src="{{ product.photo.url}}" class="img-fluid">
+        </div>
+        <div class="col">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Название {{ product.title }}</li>
+                <li class="list-group-item">Производитель {{product.manufacturer}}</li>
+                <li class="list-group-item">Высота {{product.height}}</li>
+                <li class="list-group-item">Ширина {{product.width}}</li>
+                <li class="list-group-item">Масса {{product.mass}}</li>
+                <li class="list-group-item">Тип {{product.type}}</li>
+                <li class="list-group-item">Цена {{product.price}}</li>
+            </ul>
+        </div>
     </div>
         <div class="row align-items-center">
-  <div class="col">
-      <h3>Описание</h3>
-      {{ product.description}}
-  </div>
+          <div class="col">
+              <h3>Описание</h3>
+              {{ product.description}}
+          </div>
         </div>
-<form action="{% url 'store:cart_add' product.id %}" method="post">
-    {{ cart_product_form }}
-    {% csrf_token %}
-    <input type="submit" value="Добавить в корзину" class="btn btn-sm btn-outline-secondary">
-</form>
+        <form action="{% url 'store:cart_add' product.id %}" method="post">
+            {{ cart_product_form }}
+            {% csrf_token %}
+            <input type="submit" value="Добавить в корзину" class="btn btn-sm btn-outline-secondary">
+        </form>
     </div>
-</div>
 {% endblock %}

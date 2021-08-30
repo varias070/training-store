@@ -2,17 +2,28 @@
 {% block content %}
  <div class="container">
     <div class="row align-items-center">
-<div class="row g-3">
-            <div class="col-sm-6">
-    <ul class="list-group">
-        <li class="list-group-item">Имя {{ user.first_name }}</li>
-        <li class="list-group-item">Фамилия {{ user.last_name }}</li>
-        <li class="list-group-item">Почта {{ user.email }}</li>
-    </ul>
-<a href="{% url 'store:change_personal_info' pk=user.pk %}" class="btn btn-sm btn-outline-secondary">Изменить личную информацию</a>
-                <a href="{% url 'store:change_personal_info' pk=user.pk %}" class="btn btn-sm btn-outline-secondary">Изменить пароль</a>
+        <div class="row-cols-lg-2 g-3">
+            <div class="col">
+                <h5>Личная информация</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Имя {{ user.first_name }}</li>
+                    <li class="list-group-item">Фамилия {{ user.last_name }}</li>
+                    <li class="list-group-item">Почта {{ user.email }}</li>
+                    <a href="{% url 'store:change_personal_info' pk=user.pk %}" class="list-group-item list-group-item-action">Изменить личную информацию</a>
+                    <a href="{% url 'store:change-password' pk=user.pk %}" class="list-group-item list-group-item-action">Изменить пароль</a>
+                </ul>
             </div>
-</div>
+            <div class="col">
+                 <div class="p-4">
+                    </div>
+                <h5>Ваши заказы</h5>
+                  <ul class="list-group">
+                {% for order in user.order_set.all %}
+                    <a href="{% url 'store:show_personal_order' pk=order.pk %}" class="list-group-item list-group-item-action" >Заказ номер {{ order.id }}</a>
+                {% endfor %}
+                  </ul>
+            </div>
+        </div>
     </div>
  </div>
 {% endblock %}
