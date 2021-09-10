@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'captcha',
     'registration',
+    'order',
 ]
 
 MIDDLEWARE = [

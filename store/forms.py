@@ -3,7 +3,6 @@ from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django_registration.forms import RegistrationForm
-from .models import Order
 from captcha.fields import CaptchaField
 
 
@@ -13,19 +12,6 @@ PRODUCT_QUANTITY_CHOICES = [(i, str(i)) for i in range(1, 10)]
 class CartAddProductForm(forms.Form):
     quantity = forms.TypedChoiceField(choices=PRODUCT_QUANTITY_CHOICES, coerce=int)
     update = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
-
-
-class OrderCreateForm(forms.ModelForm):
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    # first_name = forms.CharField(label='Имя', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    # last_name = forms.CharField(label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    address = forms.CharField(label='Адрес', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    city = forms.CharField(label='Город', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    # captcha = CaptchaField()
-
-    class Meta:
-        model = Order
-        fields = ['email', 'address', 'city']
 
 
 class LoginUserForm(AuthenticationForm):

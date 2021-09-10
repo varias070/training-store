@@ -9,12 +9,13 @@ from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, TemplateView
 from django_registration.backends.activation.views import RegistrationView, REGISTRATION_SALT
 from django_registration.exceptions import ActivationError
-from .models import Product, OrderItem, Type, Manufacturer
+from .models import Product, Type, Manufacturer
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from .cart import Cart
 from .forms import *
 from django.conf import settings
+from order.models import Order
 
 
 class Catalog(ListView):
@@ -67,128 +68,6 @@ def cart_remove(request, product_id):
 def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart.html', {'cart': cart})
-
-
-def order_create(request):
-    cart = Cart(request)
-    if request.method == 'POST':
-        form = OrderCreateForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            order = form.instance
-            if request.user.is_authenticated:
-                user = request.user
-            elif User.objects.filter(email=email).exists():
-                user = User.objects.get(email=email)
-                login(request, user)
-
-            else:
-                user = User.objects.create_user(
-                    email=form.cleaned_data['email'],
-                    # last_name=form.cleaned_data['last_name'],
-                    # first_name=form.cleaned_data['first_name'],
-                    username=form.cleaned_data['email'],
-                    password='123',
-                    is_active=False,
-                )
-                send_activation_email(user, request)
-            order.customer = user
-            order.save()
-
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    price=item['price'],
-                    quantity=item['quantity'],
-                )
-            cart.clear()
-            return render(request, 'store/order_created.html', {'order': order})
-    else:
-        form = OrderCreateForm
-    return render(request, 'store/order_create.html', {'cart': cart, 'form': form})
-
-
-def create_activation_key(user):
-    return signing.dumps(obj=user.get_username(), salt=REGISTRATION_SALT)
-
-
-def send_activation_email(user, request):
-    email_body_template = "django_registration/activation_email_body.txt"
-    email_subject_template = "django_registration/activation_email_subject.txt"
-    activation_key = create_activation_key(user)
-    context = get_email_context(request, activation_key)
-    context["user"] = user
-    subject = render_to_string(
-        context=context,
-        template_name=email_subject_template,
-        request=request,
-    )
-    subject = "".join(subject.splitlines())
-    message = render_to_string(
-        template_name=email_body_template,
-        context=context,
-        request=request,
-    )
-    user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
-
-
-def get_email_context(request, activation_key):
-    scheme = "https" if request.is_secure() else "http"
-    return {
-        "scheme": scheme,
-        "activation_key": activation_key,
-        "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
-        "site": get_current_site(request),
-        }
-
-
-def activate_user(*args, **kwargs):
-    username = validate_key(kwargs.get("activation_key"))
-    user = get_user(username)
-    user.is_active = True
-    user.save()
-    return user
-
-
-def validate_key(activation_key):
-    ALREADY_ACTIVATED_MESSAGE = (
-        "The account you tried to activate has already been activated."
-    )
-    BAD_USERNAME_MESSAGE = (
-        "The account you attempted to activate is invalid.")
-    EXPIRED_MESSAGE =(
-        "This account has expired.")
-    INVALID_KEY_MESSAGE = (
-        "The activation key you provided is invalid.")
-    try:
-        username = signing.loads(
-            activation_key,
-            salt=REGISTRATION_SALT,
-            max_age=settings.ACCOUNT_ACTIVATION_DAYS * 86400,
-        )
-        return username
-    except signing.SignatureExpired:
-        raise ActivationError(EXPIRED_MESSAGE, code="expired")
-    except signing.BadSignature:
-        raise ActivationError(
-            INVALID_KEY_MESSAGE,
-            code="invalid_key",
-            params={"activation_key": activation_key},
-        )
-
-
-def get_user(self, username):
-    User = get_user_model()
-    try:
-        user = User.objects.get(**{User.USERNAME_FIELD: username})
-        if user.is_active:
-            raise ActivationError(
-                self.ALREADY_ACTIVATED_MESSAGE, code="already_activated"
-            )
-        return user
-    except User.DoesNotExist:
-        raise ActivationError(self.BAD_USERNAME_MESSAGE, code="bad_username")
 
 
 class LoginUser(LoginView):

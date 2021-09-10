@@ -1,8 +1,7 @@
 from django.contrib import admin
 from .models import Manufacturer, Type
 from .models import Product
-from .models import Order
-from .models import OrderItem
+from order.models import Order, OrderItem
 
 
 admin.site.register(Product)
