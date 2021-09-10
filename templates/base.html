@@ -21,7 +21,7 @@
                     {% if request.user.is_authenticated %}
                     <li><a href="{% url 'store:personal_cabinet' pk=user.pk  %}" class="nav-link px-2 link-dark">Личный кабинет</a></li>
                     {% else %}
-                 <li><a href="{% url 'store:register' %}" class="nav-link px-2 link-dark">Регистрация</a></li>
+                 <li><a href="{% url 'registration:register' %}" class="nav-link px-2 link-dark">Регистрация</a></li>
                  <li><a href="{% url 'store:login' %}" class="nav-link px-2 link-dark">Войти</a></li>
                 </ul>
                 {% endif %}
@@ -34,7 +34,7 @@
             </div>
         </div>
     </header>
-    <main class="flex-shrink-0 h-100">
+    <main class="flex-shrink-0">
     {% block content %}
     {% endblock %}
     </main>

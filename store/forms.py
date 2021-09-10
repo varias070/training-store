@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
+from django_registration.forms import RegistrationForm
 from .models import Order
 from captcha.fields import CaptchaField
 
@@ -15,34 +16,20 @@ class CartAddProductForm(forms.Form):
 
 
 class OrderCreateForm(forms.ModelForm):
-    email = forms.EmailField(label='Email', initial=User.email, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    first_name = forms.CharField(label='Имя', initial=User.first_name, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    address = forms.CharField(label='Адресс', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    # first_name = forms.CharField(label='Имя', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    # last_name = forms.CharField(label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(label='Адрес', widget=forms.TextInput(attrs={'class': 'form-control'}))
     city = forms.CharField(label='Город', widget=forms.TextInput(attrs={'class': 'form-control'}))
     # captcha = CaptchaField()
 
     class Meta:
         model = Order
-        fields = ['first_name', 'last_name', 'email', 'address', 'city']
-
-
-class RegisterUserForm(UserCreationForm):
-    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    first_name = forms.CharField(label='Имя', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    captcha = CaptchaField()
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = ['email', 'address', 'city']
 
 
 class LoginUserForm(AuthenticationForm):
-    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    username = forms.CharField(label='Email', widget=forms.TextInput(attrs={'class': 'form-control'}))
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
 
