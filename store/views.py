@@ -1,20 +1,10 @@
-from django.contrib.auth import login, authenticate, get_user_model
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.contrib.sites.shortcuts import get_current_site
-from django.core import signing
 from django.http import HttpResponseNotFound
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, TemplateView
-from django_registration.backends.activation.views import RegistrationView, REGISTRATION_SALT
-from django_registration.exceptions import ActivationError
+from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Product, Type, Manufacturer
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
-from .cart import Cart
 from .forms import *
-from django.conf import settings
 from order.models import Order
 
 
@@ -45,29 +35,6 @@ def show_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     cart_product_form = CartAddProductForm()
     return render(request, 'store/product.html', {'product': product, 'cart_product_form': cart_product_form})
-
-
-@require_POST
-def cart_add(request, product_id):
-    cart = Cart(request)
-    product = get_object_or_404(Product, id=product_id)
-    form = CartAddProductForm(request.POST)
-    if form.is_valid():
-        cd = form.cleaned_data
-        cart.add(product=product, quantity=cd['quantity'])
-    return redirect('store:cart_detail')
-
-
-def cart_remove(request, product_id):
-    cart = Cart(request)
-    product = get_object_or_404(Product, id=product_id)
-    cart.remove(product)
-    return redirect('store:cart_detail')
-
-
-def cart_detail(request):
-    cart = Cart(request)
-    return render(request, 'store/cart.html', {'cart': cart})
 
 
 class LoginUser(LoginView):

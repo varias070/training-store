@@ -4,7 +4,7 @@ from django.shortcuts import render
 from order.forms import OrderCreateForm
 from order.models import OrderItem
 from registration.views import send_activation_email
-from store.cart import Cart
+from cart.cart import Cart
 
 
 def order_create(request):
@@ -44,4 +44,4 @@ def order_create(request):
             return render(request, 'order_created.html', {'order': order})
     else:
         form = OrderCreateForm
-    return render(request, 'rder_create.html', {'cart': cart, 'form': form})
+    return render(request, 'order_create.html', {'cart': cart, 'form': form})
