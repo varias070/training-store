@@ -3,7 +3,7 @@ from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Product, Type, Manufacturer
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from .forms import *
 from order.models import Order
 

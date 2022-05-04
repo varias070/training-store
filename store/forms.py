@@ -2,11 +2,12 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
-from django_registration.forms import RegistrationForm
 from captcha.fields import CaptchaField
+from .models import ReviewProduct
 
 
 PRODUCT_QUANTITY_CHOICES = [(i, str(i)) for i in range(1, 10)]
+PRODUCT_REVIEW_CHOICES = [(i, str(i)) for i in range(1, 5)]
 
 
 class CartAddProductForm(forms.Form):
@@ -48,3 +49,13 @@ class ChangePasswordForm(PasswordChangeForm):
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password',
                                           'autofocus': True, 'class': 'form-control'}),
     )
+
+
+class ReviewProductForm(forms.ModelForm):
+    user = forms.EmailField(label='Пользователь', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    review = forms.TypedChoiceField(label='Оценка', choices=PRODUCT_REVIEW_CHOICES, coerce=int, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(label='Текст', widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = ReviewProduct
+        fields = ('user', 'review', 'description')

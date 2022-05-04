@@ -1,9 +1,9 @@
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from order.forms import OrderCreateForm
-from order.models import OrderItem
-from registration.views import send_activation_email
+from .forms import OrderCreateForm
+from .models import OrderItem
+from registration.tasks import send_activation_email
 from cart.cart import Cart
 
 
@@ -29,7 +29,7 @@ def order_create(request):
                     password='123',
                     is_active=False,
                 )
-                send_activation_email(user, request)
+                send_activation_email.delay(user, request)
             order.customer = user
             order.save()
 

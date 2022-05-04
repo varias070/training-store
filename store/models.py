@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django_registration.forms import User
 
 
 class Product(models.Model):
@@ -45,4 +45,9 @@ class Type(models.Model):
         verbose_name_plural = 'Типы'
 
 
-
+class ReviewProduct(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    evaluation = models.IntegerField(default=5)
+    description = models.TextField(null=True)
+    active = models.BooleanField(default=True)

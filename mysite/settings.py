@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-aj(bzatiqw-v51@@*ic(*g%re(0tnhzv!0gok^1v5j5zse^r!&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -80,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'msite.wsgi.application'
+WSGI_APPLICATION = 'mysite.wsgi.application'
 
 
 # Database
@@ -137,7 +137,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join('static')
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -166,3 +167,11 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'info@google.ru'
+
+#  celery
+
+CELERY_TIMEZONE = "UTC"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BIN = 'home/artem/Desktop/pythonProject/venv/bin/celery'
+# CELERY_APP = 'mysite'
