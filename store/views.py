@@ -70,11 +70,10 @@ class ShowInfo(TemplateView):
 
 
 class ChangePassword(PasswordChangeView):
-    template_name = 'store/change_password.html'  # 'registration/password_change_form.html'
+    template_name = 'store/change_password.html'
     form_class = ChangePasswordForm
 
 
 def show_personal_order(request, pk):
     order = get_object_or_404(Order, pk=pk)
-    # order_item = get_object_or_404(OrderItem, pk=pk)
-    return render(request, 'store/personal_order.html', {'order': order})  # 'order_item': order_item})
+    return render(request, 'store/personal_order.html', {'order': order})
