@@ -14,5 +14,3 @@ urlpatterns = [
     path('change-password/<int:pk>/', ChangePassword.as_view(), name='change-password'),
     path('personal_order/<int:pk>/', views.show_personal_order, name='show_personal_order')
 ]
-
-handler404 = page_not_found

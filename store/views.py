@@ -1,4 +1,5 @@
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.db.models import Q
 from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
@@ -16,12 +17,15 @@ class Catalog(ListView):
 
     def get_queryset(self):
         queryset = Product.objects.all()
-        if self.request.GET.get('search'):
-            queryset = queryset.filter(title__icontains=self.request.GET.get('search'))
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(title__icontains=search)
         if self.request.GET.get('type'):
-            queryset = queryset.filter(type=self.request.GET.get('type'))
-        if self.request.GET.get('manufacturer'):
-            queryset = queryset.filter(manufacturer=self.request.GET.get('manufacturer'))
+            types = self.request.GET.getlist('type')
+            queryset = queryset.filter(type__in=types)
+        if self.request.GET.get:
+            manufacturers = self.request.GET.getlist('manufacturer')
+            queryset = queryset.filter(manufacturer__in=manufacturers)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -47,10 +51,6 @@ class LoginUser(LoginView):
 
 class LogoutUser(LogoutView):
     next_page = 'store:catalog'
-
-
-def page_not_found(request, exception):
-    return HttpResponseNotFound('<h1>Page not Found</h1>')
 
 
 class ShowPersonalCabinet(DetailView):
