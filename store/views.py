@@ -15,17 +15,15 @@ class Catalog(ListView):
 
     def get_queryset(self):
         queryset = Product.objects.all()
-        print(queryset)
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(title__icontains=search)
         elif self.request.GET.get('type'):
             types = self.request.GET.getlist('type')
             queryset = queryset.filter(type__in=types)
-        elif self.request.GET.get:
+        elif self.request.GET.get('manufacturer'):
             manufacturers = self.request.GET.getlist('manufacturer')
             queryset = queryset.filter(manufacturer__in=manufacturers)
-        print(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):

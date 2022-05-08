@@ -68,7 +68,7 @@ def validate_key(activation_key):
     )
     BAD_USERNAME_MESSAGE = (
         "The account you attempted to activate is invalid.")
-    EXPIRED_MESSAGE =(
+    EXPIRED_MESSAGE = (
         "This account has expired.")
     INVALID_KEY_MESSAGE = (
         "The activation key you provided is invalid.")
