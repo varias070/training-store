@@ -1,6 +1,4 @@
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.db.models import Q
-from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Product, Type, Manufacturer
@@ -17,15 +15,17 @@ class Catalog(ListView):
 
     def get_queryset(self):
         queryset = Product.objects.all()
+        print(queryset)
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(title__icontains=search)
-        if self.request.GET.get('type'):
+        elif self.request.GET.get('type'):
             types = self.request.GET.getlist('type')
             queryset = queryset.filter(type__in=types)
-        if self.request.GET.get:
+        elif self.request.GET.get:
             manufacturers = self.request.GET.getlist('manufacturer')
             queryset = queryset.filter(manufacturer__in=manufacturers)
+        print(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
