@@ -1,0 +1,136 @@
+# training-store
+
+на сервере выполнить команды
+
+sudo apt update
+sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx curl
+sudo apt install git
+sudo apt-get update
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+
+
+python3 -m venv venv
+python venv/bin/activate
+git clone git@github.com:varias070/training-store.git
+cd training-store 
+pip install -r requirements.txt
+python manage.py collectstatic
+
+создать файл gunicorn.socket
+sudo nano /etc/systemd/system/gunicorn.socket
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+создать файл gunicorn.service
+sudo nano /etc/systemd/system/gunicorn.service
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=developer
+WorkingDirectory=/home/developer/assistant
+ExecStart=/home/developer/venv/bin/gunicorn \
+    training-store.wsgi:application \
+    --access-logfile - \
+    --workers 3 \
+    --bind unix:/run/gunicorn.sock
+
+[Install]
+WantedBy=multi-user.target
+
+выполнить команды 
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+sudo systemctl status gunicorn.socket
+sudo systemctl status gunicorn
+
+создать файл nginx training-store
+sudo nano /etc/nginx/sites-available/assistant
+
+server {
+    listen 80;
+    server_name ip;
+    access_log /home/developer/logs/access.log;
+
+    location /static/ {
+        alias /home/developer/static/;
+    }
+
+    location /media/ {
+        alias /home/developer/media/;
+    }
+
+    location / {
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+}
+
+создаем файл celery.conf
+cd etc/systemd/
+sudo nano celery.conf
+
+# Access
+CELERYD_USER="developer"
+
+# Path to directory and task
+CELERY_BIN="/home/developer/venv/bin/celery"
+CELERY_APP="tasks.celery"
+
+# Worker settings
+CELERYD_NODES="worker1"
+CELERYD_OPTS=" --purge"
+
+CELERYD_MULTI="multi"
+CELERYD_STATE_DIR="/var/run/celery"
+CELERYD_PID_FILE="/var/run/celery/%n.pid"
+CELERYD_LOG_FILE="/var/log/celery/%n.log"
+
+# INFO / DEBUG / etc
+CELERYD_LOG_LEVEL="INFO"
+CELERYBEAT_LOG_LEVEL="INFO"
+
+создаем файл celery.service
+
+sudo nano celery.service
+
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=forking
+User=developer
+
+EnvironmentFile=/etc/default/celeryd
+WorkingDirectory=/home/developer
+ExecStart=/home/developer/.venv/venv/bin/celery multi start ${CELERYD_NODES} \
+  -A ${CELERY_APP} --pidfile=${CELERYD_PID_FILE} \
+  --logfile=${CELERYD_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} ${CELERYD_OPTS}
+ExecStop=/home/developer/.venv/venv/bin/celery ${CELERY_BIN} multi stopwait ${CELERYD_NODES} \
+  --pidfile=${CELERYD_PID_FILE}
+ExecReload=/home/developer/.venv/venv/bin/celery ${CELERY_BIN} multi restart ${CELERYD_NODES} \
+  -A ${CELERY_APP} --pidfile=${CELERYD_PID_FILE} \
+  --logfile=${CELERYD_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} ${CELERYD_OPTS}
+
+[Install]
+WantedBy=multi-user.target
+
+запускаем docker
