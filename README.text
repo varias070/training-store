@@ -132,5 +132,3 @@ ExecReload=/home/developer/.venv/venv/bin/celery ${CELERY_BIN} multi restart ${C
 
 [Install]
 WantedBy=multi-user.target
-
-запускаем docker
