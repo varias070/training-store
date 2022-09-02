@@ -12,11 +12,6 @@ sudo apt-get install \
     gnupg \
     lsb-release
 
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-
-
 python3 -m venv venv
 python venv/bin/activate
 git clone git@github.com:varias070/training-store.git
