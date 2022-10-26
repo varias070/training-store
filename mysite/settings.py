@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'widget_tweaks',
     'store.apps.StoreConfig',
     'captcha',
     'registration',
@@ -90,8 +89,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'shop',
-        'USER': 'hui',
-        'PASSWORD': '123',
+        'USER': 'dev',
+        'PASSWORD': 'dev',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
